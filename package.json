@@ -1,0 +1,25 @@
+{
+  "name": "cast-service",
+  "version": "0.1.0",
+  "description": "Web service to allow casting library to Chromecast",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node .",
+    "start:dev": "nodemon ."
+  },
+  "keywords": [],
+  "author": "David Muir <hey@davidmuir.co>",
+  "license": "ISC",
+  "dependencies": {
+    "bonjour": "^3.5.0",
+    "castv2-client": "^1.2.0",
+    "file-type": "^6.1.0",
+    "micro": "^9.0.0",
+    "pino": "^4.7.2",
+    "read-chunk": "^2.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.12.1"
+  }
+}

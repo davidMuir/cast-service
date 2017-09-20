@@ -3,6 +3,7 @@ const { Client, DefaultMediaReceiver } = require('castv2-client');
 const { getFileType } = require('./file-utils');
 const bonjour = require('bonjour')();
 const EventEmitter = require('events').EventEmitter;
+const log = require('pino')().child({ server: 'cast-server' });
 
 const eventEmitter = new EventEmitter();
 
@@ -14,24 +15,57 @@ function onUp(host) {
   const client = new Client();
 
   client.connect(host, () => {
-    console.log('connected');
+    log.info('connected');
 
-    eventEmitter.on('PLAY', media => {
-      console.log(media);
+    const media = {
+      // Here you can plug an URL to any mp4, webm, mp3 or jpg file with the proper contentType.
+      contentId:
+        'http://192.168.1.126:5000/media/external-hdd/Videos/Anime/Eve no Jikan/output.mp4',
+      contentType: 'video/mp4',
+      streamType: 'BUFFERED', // or LIVE
+
+      // Title and cover displayed while buffering
+      metadata: {
+        type: 0,
+        metadataType: 0,
+        title: 'Eve no Jikan - ep1',
+        images: []
+      },
+
+      tracks: [
+        {
+          trackId: 1,
+          type: 'TEXT',
+          trackContentId:
+            'http://192.168.1.126:5000/media/external-hdd/Videos/Anime/Eve no Jikan/out.vtt',
+          trackContentType: 'text/vtt',
+          name: 'English',
+          language: 'en-US',
+          subtype: 'SUBTITLES'
+        }
+      ]
+    };
+
+    eventEmitter.on('PLAY', () => {
+      log.info('media', media);
 
       client.launch(DefaultMediaReceiver, (err, player) => {
         player.on('status', status => {
-          console.log(status);
-          console.log('status: ', status.playerState);
+          log.info(status);
+          log.info('status: ', status.playerState);
         });
 
-        player.load(media, { autoplay: true }, (err, status) => {
-          if (err) {
-            console.error(err);
-            return;
+        player.load(
+          media,
+          { autoplay: true, activeTrackIds: [1] },
+          (err, status) => {
+            if (err) {
+              log.error(err);
+              return;
+            }
+            log.info('media loaded', status.playerState);
           }
-          console.log('media loaded', status.playerState);
-        });
+        );
       });
     });
   });
@@ -56,18 +90,7 @@ function onUp(host) {
 const MEDIA_SERVER = 'http://192.168.1.123:5000';
 
 module.exports = _ => async (req, res) => {
-  const path = decodeURI(req.url);
-  const type = await getFileType(path);
+  eventEmitter.emit('PLAY');
 
-  eventEmitter.emit('PLAY', {
-    contentId: MEDIA_SERVER + path,
-    contentType: type.mime,
-    streamType: 'BUFFERED',
-    metadata: {
-      type: 0,
-      metadataType: 0,
-      title: 'testing',
-      images: []
-    }
-  });
+  return 'OK';
 };

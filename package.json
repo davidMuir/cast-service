@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node .",
-    "start:dev": "nodemon ."
+    "start:dev": "nodemon . | pino"
   },
   "keywords": [],
   "author": "David Muir <hey@davidmuir.co>",
@@ -15,6 +15,7 @@
     "bonjour": "^3.5.0",
     "castv2-client": "^1.2.0",
     "file-type": "^6.1.0",
+    "fluent-ffmpeg": "^2.1.2",
     "micro": "^9.0.0",
     "pino": "^4.7.2",
     "read-chunk": "^2.1.0"
